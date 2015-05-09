@@ -6,16 +6,16 @@
 
 (defn mk-nonce
   []
-  (let [bytes (reduce (fn [vect b]
-                        (if (or (<= 48 b 57) (<= 65 b 90) (<= 97 b 122))
-                          (let [vect (conj vect b)]
-                            (if (= 32 (count vect))
-                              (reduced vect)
-                              vect))
-                          vect))
-                      []
-                      (repeatedly (partial rand-int 256)))]
-    (String. (byte-array bytes))))
+  (let [bytes_ (reduce (fn [vect b]
+                         (if (or (<= 48 b 57) (<= 65 b 90) (<= 97 b 122))
+                           (let [vect (conj vect b)]
+                             (if (= 32 (count vect))
+                               (reduced vect)
+                               vect))
+                           vect))
+                       []
+                       (repeatedly (partial rand-int 256)))]
+    (String. (byte-array (map byte bytes_)))))
 
 (defn sign ^bytes
   [^bytes data ^bytes key algorithm]

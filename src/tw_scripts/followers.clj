@@ -31,22 +31,6 @@
         req (assoc-in req [:headers "Authorization"] (auth/mk-authorization req))]
     req))
 
-(comment
-  (defn get-followers
-    ([] (get-followers (mk-req)))
-    ([req]
-       (lazy-seq
-        (let [res (http/request req)]
-          (if (= 200 (:status res))
-            (let [body (json/decode (:body res))
-                  users (map #(select-keys % ["id_str" "screen_name"]) (get body "users"))
-                  buf (ArrayChunk. (into-array users) 0 (count users))
-                  next-cursor (get body "next_cursor")]
-              (if (= 0 next-cursor)
-                (chunk-cons buf nil)
-                (chunk-cons buf (get-followers (mk-req next-cursor)))))
-            (throw (ex-info "http error" res))))))))
-
 (defn get-followers-from-cursor
   [conf cursor]
   (lazy-seq
@@ -97,6 +81,7 @@
       ;; TODO: say where the file is saved?
       (println "Downloaded" (count followers) "followers.")
       (save conf followers))
+    ;; TODO: do the diff automatically if being ran interactively
     (catch ExceptionInfo e
       (pprint (ex-data e)))
     (catch Exception e
